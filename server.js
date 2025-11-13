@@ -1,11 +1,16 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
 const PORT = 3001;
 
+
 const ADMIN_TOKEN = 'super-secret-token-2';
+
+
+const COMMENTS_FILE = path.join(__dirname, 'comments2.txt');
 
 
 let comments = [];
@@ -24,6 +29,22 @@ app.get('/', (req, res) => {
 
 function normalizeName(name) {
     return (name || '').trim().toLowerCase();
+}
+
+
+function saveCommentsToFile() {
+    const lines = comments.map(c => {
+        const safeText = (c.text || '').replace(/\r?\n/g, ' ');
+        return `id=${c.id}; author=${c.author}; hidden=${c.hidden}; createdAt=${c.createdAt}; text=${safeText}`;
+    });
+
+    fs.writeFile(COMMENTS_FILE, lines.join('\n'), (err) => {
+        if (err) {
+            console.error('Ошибка при записи файла comments2.txt:', err);
+        } else {
+            console.log('Комментарии второго пользователя сохранены в comments2.txt');
+        }
+    });
 }
 
 
@@ -54,6 +75,8 @@ app.post('/api/comments', (req, res) => {
     };
 
     comments.push(newComment);
+    saveCommentsToFile();
+
     res.status(201).json(newComment);
 });
 
@@ -79,6 +102,8 @@ app.put('/api/comments/:id', (req, res) => {
     }
 
     comment.text = text.trim();
+    saveCommentsToFile();
+
     res.json(comment);
 });
 
@@ -97,6 +122,8 @@ app.patch('/api/comments/:id/hide', (req, res) => {
     }
 
     comment.hidden = !!hide;
+    saveCommentsToFile();
+
     res.json(comment);
 });
 
@@ -120,9 +147,12 @@ app.delete('/api/comments/:id', (req, res) => {
     }
 
     comments.splice(index, 1);
+    saveCommentsToFile();
+
     res.json({ success: true });
 });
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Комментарии второго пользователя будут сохраняться в файл: ${COMMENTS_FILE}`);
 });
