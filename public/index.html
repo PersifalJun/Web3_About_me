@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Харитоненко Евгений — обо мне</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.5;
+        }
+        img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 10px 0 20px;
+        }
+        h1, h2 {
+            font-weight: normal;
+        }
+
+        #comments {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+        }
+        #comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+        #comment-form input,
+        #comment-form textarea {
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        #comment-form button {
+            align-self: flex-start;
+            padding: 8px 14px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .comment-item {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .comment-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        .comment-author {
+            font-weight: bold;
+        }
+        .comment-body {
+            margin-bottom: 6px;
+        }
+        .comment-controls {
+            text-align: right;
+            display: flex;
+            gap: 5px;
+            justify-content: flex-end;
+        }
+        .comment-controls button {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .comment-hidden {
+            opacity: 0.6;
+            font-style: italic;
+        }
+
+        #author-panel {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 6px;
+            background: #f5f5f5;
+            font-size: 14px;
+        }
+        #author-panel label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 10px;
+        }
+        #authorPassword {
+            max-width: 180px;
+        }
+    </style>
+</head>
+<body>
+<h1>Обо мне</h1>
+<p>Здравствуйте! Меня зовут Харитоненко Евгений Алексеевич. Я студент 3 курса бакалавриата Новосибирского государственного технического университета (НГТУ НЭТИ), обучаюсь на факультете прикладной математики и информатики (ФПМИ).</p>
+
+<h2>Учёба и проекты</h2>
+<p>Помимо учёбы больше года изучаю язык программирования Java и создал 14 учебных проектов по пройденным темам. Проекты можно посмотреть на моём аккаунте GitHub:</p>
+<p><a href="https://github.com/PersifalJun" target="_blank">https://github.com/PersifalJun</a></p>
+
+<p>В скором времени планирую пройти стажировку по направлению Java Developer в разных компаниях, а после успешного прохождения искать работу.</p>
+
+<h2>Спорт</h2>
+<p>Уже 6 лет занимаюсь в спортивном зале и каждый год езжу на соревнования. Являюсь мастером спорта по жиму лёжа в категории «Юниоры (20–23 года)».</p>
+
+<h2>Фото</h2>
+<img src="https://sun9-82.userapi.com/s/v1/ig2/4FOgGSoGwYygYjFcoQfygdLG4WiqiQuBTT1Cpwh-M2afi9uZtfHx0LzcKUyox_iDDV5CoMDPYaNYSkQ_GHcnv-98.jpg?quality=95&as=32x40,48x61,72x91,108x136,160x202,240x303,360x455,480x606,540x682,640x809,657x830&from=bu&cs=657x0"
+     alt="Фото Евгения" width="360">
+
+<h2>Полезные ссылки</h2>
+<ul>
+    <li><a href="https://nstu.ru/" target="_blank">НГТУ НЭТИ</a></li>
+    <li><a href="https://fpmi.nstu.ru/" target="_blank">ФПМИ</a></li>
+    <li><a href="https://github.com/PersifalJun?tab=repositories" target="_blank">Мои проекты на GitHub</a></li>
+</ul>
+
+
+<section id="comments">
+    <h2>Комментарии</h2>
+
+
+    <div id="author-panel">
+        <label>
+            <input type="checkbox" id="authorMode">
+            Авторский режим
+        </label>
+        <input type="password" id="authorPassword" placeholder="Пароль автора">
+        <span id="authorStatus"></span>
+        <div style="margin-top:6px;font-size:12px;color:#555;">
+            Пользователь может редактировать и удалять только свои комментарии (по имени в форме).
+            Скрывать/показывать комментарии может только автор в авторском режиме.
+        </div>
+    </div>
+
+    <form id="comment-form">
+        <input type="text" id="name" placeholder="Ваше имя (используется для прав на редактирование)" required>
+        <textarea id="message" rows="3" placeholder="Ваш комментарий" required></textarea>
+        <button type="submit">Отправить</button>
+    </form>
+
+    <div id="comment-list"></div>
+</section>
+
+<script>
+    const commentList = document.getElementById('comment-list');
+    const form = document.getElementById('comment-form');
+    const nameInput = document.getElementById('name');
+    const messageInput = document.getElementById('message');
+
+    const authorModeCheckbox = document.getElementById('authorMode');
+    const authorPasswordInput = document.getElementById('authorPassword');
+    const authorStatusSpan = document.getElementById('authorStatus');
+
+
+    const AUTHOR_PASSWORD = 'admin123';
+
+    const ADMIN_TOKEN = 'super-secret-token-2';
+
+    let isAuthorMode = false;
+    let adminToken = null;
+
+
+    document.addEventListener('DOMContentLoaded', loadComments);
+
+
+    authorModeCheckbox.addEventListener('change', () => {
+        if (authorModeCheckbox.checked) {
+            const pass = authorPasswordInput.value;
+            if (pass === AUTHOR_PASSWORD) {
+                isAuthorMode = true;
+                adminToken = ADMIN_TOKEN;
+                authorStatusSpan.textContent = 'Авторский режим включен';
+                authorStatusSpan.style.color = 'green';
+                loadComments();
+            } else {
+                isAuthorMode = false;
+                adminToken = null;
+                authorModeCheckbox.checked = false;
+                authorStatusSpan.textContent = 'Неверный пароль';
+                authorStatusSpan.style.color = 'red';
+            }
+        } else {
+            isAuthorMode = false;
+            adminToken = null;
+            authorStatusSpan.textContent = 'Авторский режим выключен';
+            authorStatusSpan.style.color = '';
+            loadComments();
+        }
+    });
+
+    function loadComments() {
+        const query = isAuthorMode && adminToken
+            ? '?adminToken=' + encodeURIComponent(adminToken)
+            : '';
+
+        fetch('/api/comments' + query)
+            .then(r => r.json())
+            .then(comments => {
+                commentList.innerHTML = '';
+                comments.forEach(c => addCommentToDOM(c));
+            })
+            .catch(err => console.error('Ошибка загрузки комментариев', err));
+    }
+
+
+    function addCommentToDOM(comment) {
+        const div = document.createElement('div');
+        div.className = 'comment-item';
+        div.dataset.id = comment.id;
+
+        if (comment.hidden) {
+            div.classList.add('comment-hidden');
+        }
+
+        const top = document.createElement('div');
+        top.className = 'comment-top';
+
+        const authorSpan = document.createElement('span');
+        authorSpan.className = 'comment-author';
+        authorSpan.textContent = comment.author;
+
+        const dateSpan = document.createElement('span');
+        const date = new Date(comment.createdAt);
+        dateSpan.textContent = date.toLocaleString('ru-RU');
+
+        top.appendChild(authorSpan);
+        top.appendChild(dateSpan);
+
+        const bodyP = document.createElement('p');
+        bodyP.className = 'comment-body';
+        bodyP.textContent = comment.text;
+
+        const controls = document.createElement('div');
+        controls.className = 'comment-controls';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Изменить';
+        editBtn.onclick = () => editComment(comment, div);
+
+        const hideBtn = document.createElement('button');
+        hideBtn.type = 'button';
+        hideBtn.textContent = comment.hidden ? 'Показать' : 'Скрыть';
+        hideBtn.onclick = () => toggleHideComment(comment, div);
+        hideBtn.style.display = (isAuthorMode && adminToken) ? 'inline-block' : 'none';
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Удалить';
+        deleteBtn.onclick = () => removeComment(comment, div);
+
+        controls.appendChild(editBtn);
+        controls.appendChild(hideBtn);
+        controls.appendChild(deleteBtn);
+
+        div.appendChild(top);
+        div.appendChild(bodyP);
+        div.appendChild(controls);
+
+        commentList.prepend(div);
+    }
+
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const author = nameInput.value.trim();
+        const text = messageInput.value.trim();
+
+        if (!author || !text) {
+            alert('Заполните имя и текст комментария.');
+            return;
+        }
+
+        fetch('/api/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ author, text })
+        })
+            .then(r => {
+                if (!r.ok) throw new Error('Ошибка добавления');
+                return r.json();
+            })
+            .then(newComment => {
+                messageInput.value = '';
+                addCommentToDOM(newComment);
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Не удалось добавить комментарий.');
+            });
+    });
+
+
+    function editComment(comment, element) {
+        const currentName = nameInput.value.trim();
+        const newText = prompt('Измените текст комментария:', comment.text);
+        if (newText === null) return;
+
+        fetch('/api/comments/' + comment.id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                text: newText,
+                requester: currentName,
+                adminToken: adminToken
+            })
+        })
+            .then(r => r.json().then(data => ({ ok: r.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok) {
+                    alert(data.error || 'Не удалось изменить комментарий');
+                    return;
+                }
+                const bodyP = element.querySelector('.comment-body');
+                bodyP.textContent = data.text;
+                comment.text = data.text;
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Не удалось изменить комментарий.');
+            });
+    }
+
+
+    function toggleHideComment(comment, element) {
+        if (!isAuthorMode || !adminToken) {
+            alert('Только автор может скрывать комментарии.');
+            return;
+        }
+
+        const hide = !comment.hidden;
+
+        fetch('/api/comments/' + comment.id + '/hide', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                hide,
+                adminToken: adminToken
+            })
+        })
+            .then(r => r.json().then(data => ({ ok: r.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok) {
+                    alert(data.error || 'Не удалось изменить видимость');
+                    return;
+                }
+                comment.hidden = data.hidden;
+                element.classList.toggle('comment-hidden', data.hidden);
+                const hideBtn = element.querySelector('.comment-controls button:nth-child(2)');
+                hideBtn.textContent = data.hidden ? 'Показать' : 'Скрыть';
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Не удалось изменить видимость.');
+            });
+    }
+
+
+    function removeComment(comment, element) {
+        if (!confirm('Удалить этот комментарий?')) return;
+
+        const currentName = nameInput.value.trim();
+
+        fetch('/api/comments/' + comment.id, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                requester: currentName,
+                adminToken: adminToken
+            })
+        })
+            .then(r => r.json().then(data => ({ ok: r.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok) {
+                    alert(data.error || 'Не удалось удалить комментарий');
+                    return;
+                }
+                element.remove();
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Не удалось удалить комментарий.');
+            });
+    }
+</script>
+</body>
+</html>
